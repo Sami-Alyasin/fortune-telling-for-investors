@@ -13,10 +13,10 @@ from scipy import stats
 st.set_page_config(layout="centered",initial_sidebar_state="expanded")
 
 # Load the saved LightGBM model
-lgb_model = joblib.load('/Users/sami/DSP/App/model/lgb_model.pkl')
+lgb_model = joblib.load('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/model/lgb_model.pkl')
 
 # Load sector data
-sector_data = pd.read_csv('/Users/sami/DSP/App/data/sector_data.csv')
+sector_data = pd.read_csv('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/sector_data.csv')
 
 # Streamlit layout
 st.markdown("<h1 style='text-align: center;'>The Crystal Stockball: Fortune Telling for Investors</h1>", unsafe_allow_html=True)
@@ -143,7 +143,3 @@ if st.button('Predict Tomorrow\'s Price'):
     st.markdown(f"<h2 style='text-align: center;'>🎯 Predicted adjusted close price for {selected_ticker} is: ${tomorrow_price:.2f}</h2>", unsafe_allow_html=True)
     # print the last known adjusted closing price before the prediction
     st.write(f"Last known adjusted closing price for {selected_ticker} was ${df[df['Ticker'] == selected_ticker]['Adj Close'].iloc[-1]:.2f}")
-    # Plot the stock price
-    # st.subheader(f"{selected_ticker}'s stock Price for the past 90 days:")
-    # stock_data = df[df['Ticker'] == selected_ticker].set_index('Date').tail(90)
-    # st.line_chart(stock_data['Adj Close'], height=400, use_container_width=True)
