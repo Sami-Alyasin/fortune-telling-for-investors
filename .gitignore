@@ -1,0 +1,5 @@
+# Ignore any nested .git directories
+/App/**/.git
+
+# ignore the test folder and its contents
+App/test/*

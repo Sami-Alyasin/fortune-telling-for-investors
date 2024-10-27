@@ -1,0 +1,31 @@
+Ticker,Sector,Company Name
+AAPL,Technology,Apple Inc.
+MSFT,Technology,Microsoft Corporation
+GOOGL,Communication Services,Alphabet Inc.
+META,Communication Services,"Meta Platforms, Inc."
+AMZN,Consumer Cyclical,"Amazon.com, Inc."
+JPM,Financial Services,JPMorgan Chase & Co.
+BAC,Financial Services,Bank of America Corporation
+WFC,Financial Services,Wells Fargo & Company
+GS,Financial Services,"The Goldman Sachs Group, Inc."
+MS,Financial Services,Morgan Stanley
+JNJ,Healthcare,Johnson & Johnson
+PFE,Healthcare,Pfizer Inc.
+MRK,Healthcare,"Merck & Co., Inc."
+ABT,Healthcare,Abbott Laboratories
+BMY,Healthcare,Bristol-Myers Squibb Company
+PG,Consumer Defensive,The Procter & Gamble Company
+KO,Consumer Defensive,The Coca-Cola Company
+PEP,Consumer Defensive,"PepsiCo, Inc."
+NKE,Consumer Cyclical,"NIKE, Inc."
+UL,Consumer Defensive,Unilever PLC
+XOM,Energy,Exxon Mobil Corporation
+CVX,Energy,Chevron Corporation
+SLB,Energy,Schlumberger Limited
+COP,Energy,ConocoPhillips
+BP,Energy,BP p.l.c.
+BA,Industrials,The Boeing Company
+CAT,Industrials,Caterpillar Inc.
+MMM,Industrials,3M Company
+GE,Industrials,GE Aerospace
+HON,Industrials,Honeywell International Inc.
