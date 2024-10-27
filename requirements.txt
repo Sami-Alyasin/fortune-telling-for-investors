@@ -14,3 +14,4 @@ statsmodels==0.14.4
 streamlit==1.39.0
 xgboost==2.1.2
 yfinance==0.2.48
+requests==2.32.3

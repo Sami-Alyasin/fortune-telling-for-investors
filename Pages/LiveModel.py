@@ -9,11 +9,26 @@ import math
 import sklearn as sk
 import lightgbm as lgb
 from scipy import stats
+import io
+import requests
 
 st.set_page_config(layout="centered",initial_sidebar_state="expanded")
 
 # Load the saved LightGBM model
-lgb_model = joblib.load('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/model/lgb_model.pkl')
+# URL to the raw model file in GitHub
+url = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/model/lgb_model.pkl"
+
+# Send a GET request to download the file
+response = requests.get(url)
+
+# Ensure the request was successful
+if response.status_code == 200:
+    # Use BytesIO to handle the file as a binary stream and load the model
+    model_file = io.BytesIO(response.content)
+    lgb_model = joblib.load(model_file)
+    print("Model loaded successfully.")
+else:
+    print(f"Failed to download the model. Status code: {response.status_code}")
 
 # Load sector data
 sector_data = pd.read_csv('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/sector_data.csv')
