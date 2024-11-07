@@ -30,6 +30,9 @@ with middle:
 with right:
     st.page_link("Pages/LiveModel.py",label = "Give the model a try!", icon = "🔮")
 
+# add a disclaimer that this is in progress and not complete yet
+st.warning('This page is a work in progress and is not complete yet. Please check back later for the full version.')
+
 
 with st.container(border=True):
     st.header('Data Collection',divider=True)
