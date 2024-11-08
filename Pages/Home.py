@@ -16,7 +16,7 @@ with middle:
 with right:
     st.page_link("Pages/LiveModel.py",label = "Give the model a try!", icon = "🔮")
     
-# left, right = st.columns([2,1],gap='large')  
+
 with st.container(border=True):     
     st.header("About this project", divider=True)
 
@@ -58,6 +58,7 @@ with st.container(border=True):
         * PCA (Principle Component Analysis)
         * Sentiment Analysis
                 ''')
+    
     # Skills dictionary with icons and descriptions
     skills = {
         "Github": {
@@ -102,26 +103,4 @@ logo_cols = st.columns(len(logos))  # Create a column for each logo
 for index, logo in enumerate(logos):
     with logo_cols[index]:
         st.markdown(f'<img src="{logo}" style="height: 30px;">', unsafe_allow_html=True)
-
-
-    # skills_list = list(skills.items())
-    # num_columns = 2  # Total number of columns
-    # rows_per_column = 4 # Number of rows for each column
-
-    # # Create empty lists for logos and skill names
-    # logos = [details["icon"] for _, details in skills_list]
-    # skill_names = [skill for skill, _ in skills_list]
-
-    # # Create columns
-    # cols = right.columns(num_columns)
-
-    # # Populate the grid
-    # for i in range(rows_per_column):
-    #     for col_index in range(num_columns):
-    #         skill_index = i + (col_index * rows_per_column)
-    #         if skill_index < len(skill_names):  # Ensure we don't go out of bounds
-    #             with cols[col_index]:
-    #                 st.image(logos[skill_index], width=40)  # Display skill icon
-    #                 st.subheader(skill_names[skill_index])  # Skill name
-
 
