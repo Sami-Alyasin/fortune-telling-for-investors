@@ -52,23 +52,28 @@ with st.container(border=True):
     ''')
 
     st.code('''
-    # download the data for the 30 companies
-    data = yf.download("AAPL MSFT GOOGL META AMZN JPM BAC WFC GS MS JNJ PFE MRK ABT BMY PG KO PEP NKE UL XOM CVX SLB COP BP BA CAT MMM GE HON", 
+    # download the data for 30 companies from different sectors (Technology, Finance, Healthcare, Consumer Goods, Energy, Industrials)
+    # we'll start with 5 years of data with an API call to Yahoo Finance
+    data5Y = yf.download("AAPL MSFT GOOGL META AMZN JPM BAC WFC GS MS JNJ PFE MRK ABT BMY PG KO PEP NKE UL XOM CVX SLB COP BP BA CAT MMM GE HON", 
                     period="5y",
                     group_by='ticker')
-                    
-    # Export the data to a .csv file
-    # I will be uploading this to the Github repo
-    data.to_csv('yfdownload.csv', index=False)
-    data
+
+    # we'll create two new dataframes, one with one year of trading data, and another with 6 months of trading data
+    data1Y = data5Y.iloc[-252:]
+    data6M = data5Y.iloc[-126:]
+    
+    # take a look at the first 10 rows in the dataframe
+    data5Y.head(10)
+    data5Y.to_csv('/Users/sami/DSP/App/data/data5Y.csv')
     ''')
 
-    url1 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/yfdownload.csv"
+    url1 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/data5Y.csv"
     @st.cache_data
     def load_data():
         return pd.read_csv(url1)
     df1 = load_data()
-    st.dataframe(df1)
+    # only show the first 10 rows of the data
+    st.dataframe(df1.head(10))
     
     st.code('''
             # Reshape the DataFrame
