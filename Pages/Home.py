@@ -16,11 +16,11 @@ with middle:
 with right:
     st.page_link("Pages/LiveModel.py",label = "Give the model a try!", icon = "🔮")
     
-left, right = st.columns([2,1],gap='large')  
-with left.container(border=True):     
-    left.header("About this project", divider=True)
+# left, right = st.columns([2,1],gap='large')  
+with st.container(border=True):     
+    st.header("About this project", divider=True)
 
-    left.markdown('''
+    st.markdown('''
         **This is an end-to-end data science project that will deploy a predictive model and explore how the amount of data collected, engineered features used, models selected, and the selection of the parameters of those models contribute to the accuracy and efficiency of the stock price predictive model. The model will generate the next trading day's prediction for the selected stock's adjusted closing price.**
 
         **This project will cover the following steps:**
@@ -30,9 +30,34 @@ with left.container(border=True):
         4. **Modeling** - We will train, optimize, and evaluate a variety of machine learning models.
         5. **Model deployment** - Finally, we will deploy the best performing model as a web application using Streamlit.            
         ''')
+    
+    st.header("In the works:", divider=True)
+    
+    st.markdown('''
+        **This project is continuously evolving, and the following is what's currently in progress:**
 
-with right.container(border=True):     
-    right.header("Skills & Tools Utilized",divider=True)
+        1. Exploring the use of different time ranges for the historical stock price data. 
+        2. Correctly implementing the ARIMA and SARIMA models. The way they are currently implemented is incorrect.
+        3. Exploring the use of shorter time ranges for the feature engineering process. Using 5, 10, & 15 days instead of 30,60, 90 days.
+        4. Implementing sentiment analysis from news and social media for each stock and study the correlation to the stock price movement.
+        5. Implementing PCA (Principle Component Analysis) to reduce the dimensionality of the feature space.
+        ''')
+
+with st.container(border=True):     
+    st.header("Skills & Tools Utilized",divider=True)
+    st.markdown('''
+        * Github 
+        * Machine Learning Frameworks
+        * Python
+        * Data Visualization
+        * Streamlit
+        * Exploratory Data Analysis
+        * Generative AI
+        * Model Selection, Evaluation, & Deployment
+        * Feature Engineering
+        * PCA (Principle Component Analysis)
+        * Sentiment Analysis
+                ''')
     # Skills dictionary with icons and descriptions
     skills = {
         "Github": {
@@ -64,17 +89,6 @@ with right.container(border=True):
             "icon": "https://upload.wikimedia.org/wikipedia/commons/3/37/Yahoo_Finance_Logo_2019.png" # yahoo finance logo URL
         }
     }
-
-        # Split the skills into groups of 4 for the layout
-    skills_list = list(skills.items())
-    for i in range(0, len(skills_list), 2):
-        # Create 4 columns for each group of skills
-        cols = right.columns(2)  # Create 4 columns
-        for j in range(2):
-            if i + j < len(skills_list):
-                skill, details = skills_list[i + j]
-                with cols[j]:
-                        st.markdown(skill) # Skill name
                         
 # add all logos on the same row
 # Create a container for logos
