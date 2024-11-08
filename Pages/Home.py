@@ -41,11 +41,13 @@ with st.container(border=True):
     st.markdown('''
         **This project is continuously evolving, and the following is what's currently in progress:**
 
-        1. Exploring the use of different time ranges for the historical stock price data. 
-        2. Correctly implementing the ARIMA and SARIMA models. The way they are currently implemented is incorrect.
-        3. Exploring the use of shorter time ranges for the feature engineering process. Using 5, 10, & 15 days instead of 30,60, 90 days.
-        4. Implementing sentiment analysis from news and social media for each stock and study the correlation to the stock price movement.
-        5. Implementing PCA (Principle Component Analysis) to reduce the dimensionality of the feature space.
+        * Exploring the use of different time ranges for the historical stock price data.
+        * Correctly implementing the ARIMA and SARIMA models. The way they are currently implemented is incorrect.
+        * Exploring the use of shorter time ranges for the feature engineering process. Using 5, 10, & 15 days instead of 30,60, 90 days.
+        * Adding details about the model deployment process.
+        * Implementing sentiment analysis from news and social media for each stock and study the correlation to the stock price movement.
+        * Implementing PCA (Principle Component Analysis) to reduce the dimensionality of the feature space.
+        
         ''')
 
 with st.container(border=True):     
