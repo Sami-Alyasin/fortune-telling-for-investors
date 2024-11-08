@@ -11,9 +11,9 @@ import io
 st.set_page_config(layout="wide",initial_sidebar_state="expanded")
 
 # st.markdown("<h1 style='text-align: center;'>End-to-end Project Walkthrough</h1>", unsafe_allow_html=True)
-st.markdown("<h1 style='text-align: center;'>The Crystal Stockball: Fortune Telling for Investors</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Fortune Telling for Investors</h1>", unsafe_allow_html=True)
 
-st.sidebar.markdown("Navigate to a specific section:", unsafe_allow_html=True)
+st.sidebar.markdown("Navigate to:", unsafe_allow_html=True)
 st.sidebar.markdown("[Data Collection](#data-collection)", unsafe_allow_html=True)
 st.sidebar.markdown("[Exploratory Data Analysis](#eda)", unsafe_allow_html=True)
 st.sidebar.markdown("[Feature Engineering](#feature-engineering)", unsafe_allow_html=True)
@@ -31,7 +31,7 @@ with right:
     st.page_link("Pages/LiveModel.py",label = "Give the model a try!", icon = "🔮")
 
 # add a disclaimer that this is in progress and not complete yet
-st.warning('This page is a work in progress and is not complete yet. Please check back later for the full version.')
+st.warning('This page is a work in progress and is not complete yet. Please check the "In the works" section on the About page for more details.')
 
 
 with st.container(border=True):

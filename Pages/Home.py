@@ -2,7 +2,12 @@ import streamlit as st
 # make wide mode the default
 st.set_page_config(layout="wide",initial_sidebar_state="expanded")
 
-st.markdown("<h1 style='text-align: center;'>The Crystal Stockball: Fortune Telling for Investors</h1>", unsafe_allow_html=True)
+st.sidebar.markdown("On this page:", unsafe_allow_html=True)
+st.sidebar.markdown("[About this project](#about-this-project)", unsafe_allow_html=True)
+st.sidebar.markdown("[In the works](#in-the-works)", unsafe_allow_html=True)
+st.sidebar.markdown("[Skills & Tools Utilized](#skills-tools-utilized)", unsafe_allow_html=True)
+
+st.markdown("<h1 style='text-align: center;'>Fortune Telling for Investors</h1>", unsafe_allow_html=True)
 st.divider()
 
 # add a button called next: Project wlakthorugh that will take the user to the next page

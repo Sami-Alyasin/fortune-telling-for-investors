@@ -34,7 +34,7 @@ else:
 sector_data = pd.read_csv('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/sector_data.csv')
 
 # Streamlit layout
-st.markdown("<h1 style='text-align: center;'>The Crystal Stockball: Fortune Telling for Investors</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>Fortune Telling for Investors</h1>", unsafe_allow_html=True)
 
 st.divider()
 left, middle, right = st.columns(3,gap='large')  
