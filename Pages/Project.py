@@ -57,10 +57,6 @@ with st.container(border=True):
     data5Y = yf.download("AAPL MSFT GOOGL META AMZN JPM BAC WFC GS MS JNJ PFE MRK ABT BMY PG KO PEP NKE UL XOM CVX SLB COP BP BA CAT MMM GE HON", 
                     period="5y",
                     group_by='ticker')
-
-    # we'll create two new dataframes, one with one year of trading data, and another with 6 months of trading data
-    data1Y = data5Y.iloc[-252:]
-    data6M = data5Y.iloc[-126:]
     
     # take a look at the first 10 rows in the dataframe
     data5Y.head(10)
