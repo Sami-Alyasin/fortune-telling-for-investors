@@ -500,39 +500,41 @@ with st.container(border=True):
    
     st.code('''
             # Fit ARIMA model
-            p, d, q = 1, 1, 1
-            model = sm.tsa.ARIMA(stock_data, order=(p, d, q))
+            p, d, q = 1, 2, 1
+            model = sm.tsa.ARIMA(train_data, order=(p, d, q))
             model_fit = model.fit()
 
             # Model Summary
             print(model_fit.summary())
 
-            # Predicting the next day's price
-            forecast = model_fit.forecast(steps=1)
-            print(f'Predicted Adjusted Close Price for next trading day: {forecast.iloc[0]}')
+            # Predicting the next day's price using get_forecast
+            forecast_object = model_fit.get_forecast(steps=len(test_data))
+            forecast = forecast_object.predicted_mean
+            conf_int = forecast_object.conf_int()
 
             # Plotting actual vs predicted
             plt.figure(figsize=(20, 8))
-            plt.plot(stock_data[-100:], label='Actual Price')
-            plt.plot(model_fit.fittedvalues[-100:], label='Fitted Values', color='red')
+            plt.plot(test_data, label='Actual Price')
+            plt.plot(test_data.index, forecast, label='Predicted Price', color='red')
             plt.xlabel('Date')
             plt.ylabel('Adjusted Close Price')
-            plt.title(f'Actual vs Fitted Values for {stock_ticker} Stock Price')
+            plt.title(f'Actual vs Predicted Values for {stock_ticker} Stock Price')
             plt.legend()
             plt.show()
 
             # Evaluating Model Performance
-            y_true = stock_data[1:len(model_fit.fittedvalues) + 1]  # True values (excluding first row because of differencing)
-            y_pred = model_fit.fittedvalues[:len(y_true)]
-            mae = mean_absolute_error(y_true, y_pred)
-            rmse = root_mean_squared_error(y_true, y_pred)
-            mse = np.square(rmse)
-            r2 = r2_score(y_true, y_pred)   
+            y_true = test_data
+            y_pred = forecast
+            arima_mae = mean_absolute_error(y_true, y_pred)
+            arima_rmse = root_mean_squared_error(y_true, y_pred)
+            arima_mse = np.square(arima_rmse)
+            arima_r2 = r2_score(y_true, y_pred)
 
-            print(f'MAE: {mae}')
-            print(f'MSE: {mse}')
-            print(f'RMSE: {rmse}')
-            print(f'R2 Score: {r2}')
+            print(f'MAE: {arima_mae}')
+            print(f'MSE: {arima_mse}')
+            print(f'RMSE: {arima_rmse}')
+            print(f'R2 Score: {arima_r2}')
+
             ''') 
     
     st.text('''
@@ -569,20 +571,76 @@ with st.container(border=True):
             RMSE: 17.281486655310044
             R2 Score: 0.39032436821929584
                         ''')
+    
+    st.markdown('''
+        #### Now that we've demonstarted how we're able to implement and evaluate an ARIMA model for a single stock, we will create a function that will run this process for the rest of the stocks (30 in total) and take their average evaluation metrics to compare with the other models we will implement.            
+                ''')
 
     st.code('''
-            # Append ARIMA & SARIMA results to the evaluation DataFrame
-    if 'ARIMA' in evaluation_df['Model'].values:
-        evaluation_df.loc[evaluation_df['Model'] == 'ARIMA', ['MAE', 'MSE', 'RMSE', 'R2']] = [arima_mae, arima_mse, arima_rmse, arima_r2]
-    else:
-        evaluation_df.loc[len(evaluation_df)] = ['ARIMA', arima_mae, arima_mse, arima_rmse, arima_r2]
+            # Function to fit and evaluate ARIMA model
+    def ARIMA_model(ticker, p, d, q):
+        stock_data = data[data['Ticker'] == ticker]['Adj Close']
 
-    if 'SARIMA' in evaluation_df['Model'].values:
-        evaluation_df.loc[evaluation_df['Model'] == 'SARIMA', ['MAE', 'MSE', 'RMSE', 'R2']] = [sarima_mae, sarima_mse, sarima_rmse, sarima_r2]
-    else:
-        evaluation_df.loc[len(evaluation_df)] = ['SARIMA', sarima_mae, sarima_mse, sarima_rmse, sarima_r2]
+        # Split the data into training and test sets
+        train_data, test_data = train_test_split(stock_data, test_size=0.2, shuffle=False)
+        
+        # Fit the model
+        model = sm.tsa.ARIMA(train_data, order=(p, d, q))
+        model_fit = model.fit()
+        
+        # Predicting the next day's price using get_forecast
+        forecast_object = model_fit.get_forecast(steps=len(test_data))
+        forecast = forecast_object.predicted_mean
+        
+        # Evaluating Model Performance
+        y_true = test_data
+        y_pred = forecast
+        arima_mae = mean_absolute_error(y_true, y_pred)
+        arima_rmse = root_mean_squared_error(y_true, y_pred)
+        arima_mse = mean_squared_error(y_true, y_pred)
+        arima_r2 = r2_score(y_true, y_pred)
+        
+        return arima_mae, arima_rmse, arima_mse, arima_r2
 
-    evaluation_df
+    # Running ARIMA model for 30 different tickers and calculating average metrics
+    tickers = data['Ticker'].unique()[:30]
+    metrics = {'mae': [], 'rmse': [], 'mse': [], 'r2': []}
+
+    for ticker in tickers:
+        try:
+            arima_mae, arima_rmse, arima_mse, arima_r2 = ARIMA_model(ticker, 1, 2, 1)
+            metrics['mae'].append(arima_mae)
+            metrics['rmse'].append(arima_rmse)
+            metrics['mse'].append(arima_mse)
+            metrics['r2'].append(arima_r2)
+        except Exception as e:
+            print(f"Error processing ticker {ticker}: {e}")
+            continue
+
+    # Calculating average metrics across all tickers
+    arima_avg_mae = np.mean(metrics['mae'])
+    arima_avg_rmse = np.mean(metrics['rmse'])
+    arima_avg_mse = np.mean(metrics['mse'])
+    arima_avg_r2 = np.mean(metrics['r2'])
+            ''')
+    
+    st.code('''
+            # Create a DataFrame to store the evaluation metrics
+            evaluation_df = pd.DataFrame({
+                'Model': [],
+                'MAE': [],
+                'MSE': [],
+                'RMSE': [],
+                'R2': []
+            })
+
+            # append ARIMA evaluation metrics to the DataFrame
+            if 'ARIMA' in evaluation_df['Model'].values:
+                evaluation_df.loc[evaluation_df['Model'] == 'ARIMA', ['MAE', 'MSE', 'RMSE', 'R2']] = [arima_avg_mae, arima_avg_mse, arima_avg_rmse, arima_avg_r2]
+            else:
+                evaluation_df.loc[len(evaluation_df)] = ['ARIMA', arima_avg_mae, arima_avg_mse, arima_avg_rmse, arima_avg_r2]
+                
+            evaluation_df
     ''')
 
     url6 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/evaluation_df1.csv"
@@ -591,6 +649,7 @@ with st.container(border=True):
         return pd.read_csv(url6)
     df6 = load_data()
     st.dataframe(df6)  
+
 
     st.markdown('''
     ### Random Forest Regressor
