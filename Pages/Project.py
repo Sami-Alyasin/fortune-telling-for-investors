@@ -661,28 +661,35 @@ with st.container(border=True):
     ''')
 
     st.code('''
-            # Prepare the data for RandomForestRegressor
-    # Split data into train and test sets
-    train, test = train_test_split(data, test_size=0.2, shuffle=False)
+        # Prepare the data for RandomForestRegressor
+        # Load data
+        data = pd.read_csv('stock_data.csv', index_col='Date', parse_dates=True)
 
-    # Define feature columns
-    feature_columns = [
-        'Daily_Return', 'Volatility', 'Z_Score_ACP', 'Z_Score_Volume',
-        'RM_30', 'RSTD_30', 'BB_upper_30', 'BB_lower_30',
-        'RM_60', 'RSTD_60', 'BB_upper_60', 'BB_lower_60',
-        'RM_90', 'RSTD_90', 'BB_upper_90', 'BB_lower_90',
-        'RSI_30', 'RSI_60', 'RSI_90'
-    ]
+        # Split data into train and test sets
+        train, test = train_test_split(data, test_size=0.2, shuffle=False)
 
-    # Define the target column
-    target_column = 'Adj Close'
+        # Define feature columns
+        feature_columns = [
+            'Daily_Return', 'Volatility_5', 'Volatility_15', 'Volatility_30', 'Z_Score_ACP', 'Z_Score_Volume',
+            'RM_5', 'RSTD_5', 'BB_upper_5', 'BB_lower_5',
+            'RM_10', 'RSTD_10', 'BB_upper_10', 'BB_lower_10',
+            'RM_15', 'RSTD_15', 'BB_upper_15', 'BB_lower_15',
+            'RSI_5', 'RSI_10', 'RSI_15',
+            'RM_30', 'RSTD_30', 'BB_upper_30', 'BB_lower_30',
+            'RM_60', 'RSTD_60', 'BB_upper_60', 'BB_lower_60',
+            'RM_90', 'RSTD_90', 'BB_upper_90', 'BB_lower_90',
+            'RSI_30', 'RSI_60', 'RSI_90'
+        ]
 
-    # Train and test splits
-    X_train = train[feature_columns]
-    y_train = train[target_column]
+        # Define the target column
+        target_column = 'Adj Close'
 
-    X_test = test[feature_columns]
-    y_test = test[target_column]
+        # Train and test splits (assuming you've already done this)
+        X_train = train[feature_columns]
+        y_train = train[target_column]
+
+        X_test = test[feature_columns]
+        y_test = test[target_column]
     ''')
 
     st.markdown('''
