@@ -418,60 +418,64 @@ with st.container(border=True):
 
     st.markdown('''
     ### We will implement and evaulate the following models:
-    - **Baseline Models:**
-        - **ARIMA (AutoRegressive Integrated Moving Average)**: Good for univariate time series.
-        - **SARIMA (Seasonal ARIMA)**: Handles seasonality in data better.
-    - **Machine Learning Models:**
-        - **Random Forest Regressor**: Use stock features to predict the next day’s stock price.
-        - **XGBoost** & **LightGBM**: Gradient boosting models are often strong performers in time series tasks.
-    - **Deep Learning Model:**
-        - **GRU (Gated Recurrent Unit)**: Similar to LSTMs but computationally more efficient.
+    - **ARIMA (AutoRegressive Integrated Moving Average)**
+    - **Random Forest Regressor**
+    - **XGBoost**
+    - **LightGBM**
+    - **GRU (Gated Recurrent Unit)**
     ''')
 
     st.markdown('''
-    ### ARIMA & SARIMA
+    ### ARIMA
     ''')
 
     st.code('''
-        import pandas as pd
+    import pandas as pd
     import numpy as np
-    from statsmodels.tsa.arima.model import ARIMA
-    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    import yfinance as yf
+    import statsmodels.api as sm
+    import matplotlib.pyplot as plt
     from sklearn.metrics import mean_absolute_error, root_mean_squared_error, r2_score
-    from sklearn.model_selection import train_test_split, TimeSeriesSplit, cross_val_score
 
-    # Load and preprocess data
-    data = pd.read_csv('stock_data.csv', index_col='Date', parse_dates=True)
-    data_ARIMA_SARIMA = data['Adj Close']
+    # Load the data
+    data_ARIMA = pd.read_csv('stock_data.csv', index_col='Date', parse_dates=True)
 
-    # Split data into train and test sets
-    train, test = train_test_split(data_ARIMA_SARIMA, test_size=0.2, shuffle=False)
+    # Filtering data for a single stock to implement ARIMA model
+    stock_ticker = 'AAPL'
+    stock_data = data_ARIMA[data_ARIMA['Ticker'] == stock_ticker]['Adj Close']
 
-    # Create a DataFrame to store the evaluation metrics
-    evaluation_df = pd.DataFrame({
-        'Model': [],
-        'MAE': [],
-        'MSE': [],
-        'RMSE': [],
-        'R2': []
-    })
+    # Differencing to make time series stationary
+    differenced_data = stock_data.diff().dropna()
 
-    # Baseline Models: ARIMA/SARIMA
-    def evaluate_model(model, train, test):
-        predictions = model.forecast(steps=len(test))
-        mae = mean_absolute_error(test, predictions)
-        rmse = root_mean_squared_error(test, predictions)
-        mse = np.square(rmse)
-        r2 = r2_score(test, predictions)
-        return mae, mse, rmse, r2
+    # Finding the order (p, d, q) using ACF and PACF plots
+    fig, ax = plt.subplots(2, 1, figsize=(20, 8))
+    sm.graphics.tsa.plot_acf(differenced_data, lags=20, ax=ax[0])
+    sm.graphics.tsa.plot_pacf(differenced_data, lags=20, ax=ax[1])
+    plt.show()
+    ''')
+    
+    # st.image('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/refs/heads/main/data/acf_pacf.png')
+    
+    st.markdown('''
+    ### ACF and PACF Interpretation
+    - **ACF Plot (Autocorrelation Function):**
+        - The ACF plot shows the correlation of the time series with its past values (lags).
+        - The significant spike at **lag 0** is expected since a time series is always perfectly correlated with itself.
+        - The key aspect to look for in this plot is the **cut-off point** (where correlations drop within the blue confidence interval bands). A cut-off after lag 1 or 2 could indicate the Moving Average (`q`) component.
+        - In our plot, there is a significant spike at **lag 0**, and all subsequent lags fall within the confidence interval, which suggests a cut-off point. This behavior indicates that **`q` should be 0 or 1**.
+    - **PACF Plot (Partial Autocorrelation Function):**
+        - The PACF plot shows the partial correlation of the time series with its own lagged values, after removing the effect of intermediate lags.
+        - The **cut-off point** in the PACF plot helps identify the order of the Autoregressive (`p`) component.
+        - In our plot, we see a significant spike at **lag 0**, followed by most subsequent lags falling within the confidence bands. This suggests that **`p` should also be around 0 or 1**.
 
-    # ARIMA
-    arima_model = ARIMA(train, order=(1, 1, 1)).fit()
-    arima_mae, arima_mse, arima_rmse, arima_r2 = evaluate_model(arima_model, train, test)
+    ### Determining the Order (p, d, q):
 
-    # SARIMA
-    sarima_model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 12)).fit()
-    sarima_mae, sarima_mse, sarima_rmse, sarima_r2 = evaluate_model(sarima_model, train, test)
+    - **`d` (differencing):**
+        - We already performed **first differencing** to make the time series stationary, which means `d = 1`.
+    - **`p` (Autoregressive term):**
+        - Since there is a significant spike at lag 0 in the PACF plot and no significant spikes after, it suggests **`p = 0 or 1`**.
+    - **`q` (Moving Average term):**
+        - The ACF plot has no significant spikes beyond lag 0, indicating a **`q` value of 0 or 1**.    
     ''')
 
     st.code('''

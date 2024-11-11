@@ -59,6 +59,9 @@ with st.container(border=True):
         * Data Visualization
         * Streamlit
         * Exploratory Data Analysis
+            * Outlier Detection
+            * Time Series Analysis
+            * Normality Testing
         * Generative AI
         * Model Selection, Evaluation, & Deployment
         * Feature Engineering
