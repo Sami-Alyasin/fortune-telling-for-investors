@@ -82,8 +82,7 @@ with st.container(border=True):
     df_temp
     ''')
 
-    st.write('Modify the DF below')
-    url2 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/stock_data_initial_t.csv"
+    url2 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/stock_data_initial.csv"
     @st.cache_data
     def load_data():
         return pd.read_csv(url2)
@@ -134,7 +133,7 @@ with st.container(border=True):
     df
     ''')
 
-    url4 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/stock_data_initial.csv"
+    url4 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/stock_data_merged.csv"
     @st.cache_data
     def load_data():
         return pd.read_csv(url4)
