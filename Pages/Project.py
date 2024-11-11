@@ -33,7 +33,7 @@ with right:
 # add a disclaimer that this is in progress and not complete yet
 st.warning('This page is a work in progress and is not complete yet. Please check the "In the works" section on the About page for more details.')
 
-
+# Data Collection
 with st.container(border=True):
     st.header('Data Collection',divider=True)
 
@@ -138,9 +138,9 @@ with st.container(border=True):
     def load_data():
         return pd.read_csv(url4)
     df4 = load_data()
-    st.dataframe(df4.head(10))    
+    st.dataframe(df4.head(10))
 
-
+# EDA
 with st.container(border=True):
     st.header('EDA',divider=True)
     st.markdown('''
@@ -284,8 +284,9 @@ with st.container(border=True):
         return pd.read_csv(url5)
     df5 = load_data()
     df5['P_value'] = df5['P_value'].apply(lambda x: "{:.4f}".format(x))
-    st.dataframe(df5)    
-
+    st.dataframe(df5)
+        
+# Feature Engineering
 with st.container(border=True):
     st.header('Feature Engineering',divider=True)
 
@@ -299,7 +300,9 @@ with st.container(border=True):
     df['Daily_Return'] = df['Adj Close'].pct_change()
 
     # Calculate volatility (standard deviation of daily returns)
-    df['Volatility'] = df['Daily_Return'].rolling(window=30).std())
+    df['Volatility_30'] = df['Daily_Return'].rolling(window=30).std()
+    df['Volatility_15'] = df['Daily_Return'].rolling(window=15).std()
+    df['Volatility_5'] = df['Daily_Return'].rolling(window=5).std()
     ''')
 
     st.code('''
@@ -340,7 +343,7 @@ with st.container(border=True):
         sns.lineplot(
             data=df[(df['Ticker'] == tkr) & (df['Date'] >= start_date)],
             x='Date', 
-            y='Volatility', 
+            y='Volatility_30', 
             label='Volatility', 
             color=color_palette(i / len(tickers)), 
             ax=axes[i, 1]
@@ -367,7 +370,8 @@ with st.container(border=True):
         df[f'BB_lower_{window}'] = df[f'RM_{window}'] - (df['Adj Close'].rolling(window=window).std() * 2)
         return df
 
-    for window in [30, 60, 90]:
+    # Calculate Bollinger Bands for different windows
+    for window in [5,10,15,30,60,90]:
         # Rolling Mean 
         df[f'RM_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: x.rolling(window=window).mean())
         # Rolling Standard Deviation
@@ -399,7 +403,7 @@ with st.container(border=True):
         return rsi
 
     # Calculate RSI for different window sizes and add them to the dataframe
-    for window in [30, 60, 90]:
+    for window in [5,10,15,30,60,90]:
         df[f'RSI_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: calculate_rsi(x, window))
     ''')
 
@@ -412,6 +416,7 @@ with st.container(border=True):
     df.to_csv('stock_data.csv', index=False)
     ''')
 
+# Modeling
 with st.container(border=True):
     st.header('Modeling',divider=True)
 
