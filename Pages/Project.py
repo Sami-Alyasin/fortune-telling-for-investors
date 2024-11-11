@@ -79,7 +79,7 @@ with st.container(border=True):
             # Reshape the DataFrame
     df_temp = data.stack(level=0).reset_index()
     df_temp.to_csv('stock_data_initial_t.csv', index=False)
-    df_temp
+    df_temp.head(10)
     ''')
 
     url2 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/stock_data_initial.csv"
@@ -87,7 +87,7 @@ with st.container(border=True):
     def load_data():
         return pd.read_csv(url2)
     df2 = load_data()
-    st.dataframe(df2)
+    st.dataframe(df2.head(10))
 
     st.code('''
             
@@ -130,7 +130,7 @@ with st.container(border=True):
             # Merge the Dataframes
     df = pd.merge(df_temp, ind_sec_df, how='left', on='Ticker')
     df.to_csv('stock_data_initial.csv', index=False)
-    df
+    df.head(10)
     ''')
 
     url4 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/stock_data_merged.csv"
@@ -138,7 +138,7 @@ with st.container(border=True):
     def load_data():
         return pd.read_csv(url4)
     df4 = load_data()
-    st.dataframe(df4)    
+    st.dataframe(df4.head(10))    
 
 
 with st.container(border=True):
