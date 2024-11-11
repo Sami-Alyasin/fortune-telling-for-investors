@@ -424,7 +424,7 @@ with st.container(border=True):
     - **LightGBM**
     - **GRU (Gated Recurrent Unit)**
     ''')
-
+# ARIMA
     st.markdown('''
     ### ARIMA
     ''')
@@ -650,7 +650,7 @@ with st.container(border=True):
     df6 = load_data()
     st.dataframe(df6)  
 
-
+# Random Forest Regressor
     st.markdown('''
     ### Random Forest Regressor
     Data Preparation:

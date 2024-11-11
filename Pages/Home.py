@@ -26,7 +26,7 @@ with st.container(border=True):
     st.header("About this project", divider=True)
 
     st.markdown('''
-        **This is an end-to-end data science project that will deploy a predictive model and explore how the amount of data collected, engineered features used, models selected, and the selection of the parameters of those models contribute to the accuracy and efficiency of the stock price predictive model. The model will generate the next trading day's prediction for the selected stock's adjusted closing price.**
+        **This is an end-to-end data science project that will deploy a live stock price prediction model and explore how the amount of data used for training, engineered features used, models selected, and the selection of the parameters of those models contribute to the performance and efficiency of the model. The model will generate the next trading day's prediction for the selected stock's adjusted closing price.**
 
         **This project will cover the following steps:**
         1. **Data collection** - We will collect historical stock price data from Yahoo Finance using the yfinance API.
@@ -42,7 +42,6 @@ with st.container(border=True):
         **This project is continuously evolving, and the following is what's currently in progress:**
 
         * Exploring the use of different time ranges for the historical stock price data.
-        * Correctly implementing the ARIMA and SARIMA models. The way they are currently implemented is incorrect.
         * Exploring the use of shorter time ranges for the feature engineering process. Using 5, 10, & 15 days instead of 30,60, 90 days.
         * Adding details about the model deployment process.
         * Implementing sentiment analysis from news and social media for each stock and study the correlation to the stock price movement.
