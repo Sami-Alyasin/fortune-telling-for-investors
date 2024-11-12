@@ -1,1 +1,1 @@
-*.pkl filter=lfs diff=lfs merge=lfs -text
+model/rf_model_w_rfe.pkl filter=lfs diff=lfs merge=lfs -text
