@@ -17,7 +17,7 @@ st.set_page_config(layout="centered",initial_sidebar_state="expanded")
 
 # Load the saved LightGBM model
 # URL to the raw model file in GitHub
-url = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/model/rf_model_w_rfe.pkl"
+url = "https://raw.githubusercontent.com/Sami-Alyasin/fortune-telling-for-investors/main/model/rf_model_w_rfe.pkl"
 
 # Send a GET request to download the file
 response = requests.get(url)
@@ -32,7 +32,7 @@ else:
     print(f"Failed to download the model. Status code: {response.status_code}")
 
 # Load sector data
-sector_data = pd.read_csv('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/sector_data.csv')
+sector_data = pd.read_csv('https://raw.githubusercontent.com/Sami-Alyasin/fortune-telling-for-investors/main/data/sector_data.csv')
 
 # Streamlit layout
 st.markdown("<h1 style='text-align: center;'>Fortune Telling for Investors</h1>", unsafe_allow_html=True)
