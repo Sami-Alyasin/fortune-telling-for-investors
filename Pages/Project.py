@@ -882,14 +882,14 @@ with st.container(border=True):
     print(f"Mean RMSE with RFE: {cv_rmse_w_rfe.mean()}")
     ''')
 
-    st.write('Cross-validated RMSE scores without RFE: [38.26555756  7.76247466 30.61504972  9.16085797  9.22448878]')
-    st.write('Mean RMSE: 19.005685738112522')
-    st.write('Cross-validated RMSE scores with RFE: [38.93866323  8.24550119 30.41290269  9.26231861  9.29040843]')
-    st.write('Mean RMSE with RFE: 19.2299588295056')
+    st.write('Cross-validated RMSE scores without RFE: [32.63447453  2.22874748 27.71891349  4.43199662  6.10554772]')
+    st.write('Mean RMSE: 14.62393596757805')
+    st.write('Cross-validated RMSE scores with RFE: [30.26314701  2.22361474 28.32227043  4.59673514  5.93427474]')
+    st.write('Mean RMSE with RFE: 14.26800841253872')
 
 
     st.markdown('''
-    Considering that they both generalize well, we can use the model with all the features
+    They both generalize well, and the model with RFE performs slightly better than the model without RFE.
     ''')
 
     st.markdown('''
@@ -973,6 +973,69 @@ with st.container(border=True):
 
     st.image('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/refs/heads/main/data/featureimportance2.png')
 
+    st.code('''
+    # Initialze RFE with XGBoost as the estimator
+    rfe_xgb = RFE(estimator=xgb_model, n_features_to_select=10)
+
+    # Fit RFE
+    rfe_xgb.fit(X_train, y_train)
+
+    # Get the ranking of features
+    rfe_xgb_ranking = pd.DataFrame({
+        'Feature': feature_columns,
+        'Ranking': rfe_xgb.ranking_
+    }).sort_values(by='Ranking')
+
+    print(rfe_xgb_ranking)
+    ''')
+    
+    url10a = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/rfe_xgb_ranking.csv"
+    @st.cache_data
+    def load_data():
+        return pd.read_csv(url10a)
+    df10a = load_data()
+    st.dataframe(df10a)
+    
+    st.code('''
+    # Select top features (from RFE or feature importance analysis)
+    selected_features = rfe_xgb_ranking[rfe_xgb_ranking['Ranking'] == 1]['Feature'].tolist()
+
+    # Train the model with selected features
+    X_train_selected = X_train[selected_features]
+    X_test_selected = X_test[selected_features]
+
+    # Initialize XGBoost model
+    xgb_model2 = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=100, learning_rate=0.1, random_state=42)
+
+    # Fit the model
+    xgb_model2.fit(X_train_selected, y_train)
+
+    # Predict on the test data
+    xgb_predictions = xgb_model2.predict(X_test_selected)
+
+    # Evaluate the model
+    xgb_mae = mean_absolute_error(y_test, xgb_predictions)
+    xgb_rmse = root_mean_squared_error(y_test, xgb_predictions)
+    xgb_mse = np.square(xgb_rmse)
+    xgb_r2 = r2_score(y_test, xgb_predictions)
+
+    # append XGBoost results
+    model_name = 'XGBoost w/RFE'
+    if model_name in evaluation_df['Model'].values:
+        evaluation_df.loc[evaluation_df['Model'] == model_name, ['MAE', 'MSE', 'RMSE', 'R2']] = [xgb_mae, xgb_mse, xgb_rmse, xgb_r2]
+    else:
+        evaluation_df.loc[len(evaluation_df)] = [model_name, xgb_mae, xgb_mse, xgb_rmse, xgb_r2]
+    evaluation_df.to_csv('/Users/sami/DSP/App-SPP/data/evaluation_df4b.csv', index=False)
+    evaluation_df
+            ''')
+    
+    url10b = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/evaluation_df4b.csv"
+    @st.cache_data
+    def load_data():
+        return pd.read_csv(url10b)
+    df10b = load_data()
+    st.dataframe(df10b)
+    
     st.markdown('''
     Cross-Validation with XGBoost
     Just like with RandomForest, you can apply TimeSeriesSplit to perform cross-validation with XGBoost
