@@ -16,7 +16,7 @@ st.set_page_config(layout="centered",initial_sidebar_state="expanded")
 
 # Load the saved LightGBM model
 # URL to the raw model file in GitHub
-url = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/model/lgb_model.pkl"
+url = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/model/rf_model_w_rfe.pkl"
 
 # Send a GET request to download the file
 response = requests.get(url)
@@ -25,7 +25,7 @@ response = requests.get(url)
 if response.status_code == 200:
     # Use BytesIO to handle the file as a binary stream and load the model
     model_file = io.BytesIO(response.content)
-    lgb_model = joblib.load(model_file)
+    rf_model_w_rfe = joblib.load(model_file)
     print("Model loaded successfully.")
 else:
     print(f"Failed to download the model. Status code: {response.status_code}")
@@ -69,7 +69,9 @@ selected_ticker = st.selectbox("Select a stock ticker:", tickers)
 df['Daily_Return'] = df['Adj Close'].pct_change()
 
 # Calculate volatility (standard deviation of daily returns)
-df['Volatility'] = df['Daily_Return'].rolling(window=30).std()
+df['Volatility_30'] = df['Daily_Return'].rolling(window=30).std()
+df['Volatility_15'] = df['Daily_Return'].rolling(window=15).std()
+df['Volatility_5'] = df['Daily_Return'].rolling(window=5).std()
 
 # Z-scores - for outlier detection
 df['Z_Score_ACP'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: stats.zscore(x))
@@ -81,7 +83,7 @@ def calculate_bollinger_bands(df, window):
     df[f'BB_lower_{window}'] = df[f'RM_{window}'] - (df['Adj Close'].rolling(window=window).std() * 2)
     return df
 
-for window in [30, 60, 90]:
+for window in [5,10,15,30,60,90]:
     # Rolling Mean 
     df[f'RM_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: x.rolling(window=window).mean())
     # Rolling Standard Deviation
@@ -110,7 +112,7 @@ def calculate_rsi(df, window):
     return rsi
 
 # Calculate RSI for different window sizes and add them to the dataframe
-for window in [30, 60, 90]:
+for window in [5,10,15,30,60,90]:
     df[f'RSI_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: calculate_rsi(x, window))
     
 df.dropna(inplace=True)
@@ -128,28 +130,19 @@ def predict_tomorrow_stock_price(ticker):
     # Prepare the next day's features
     X_tomorrow = pd.DataFrame({
     'Daily_Return': last_row['Daily_Return'],  # You can leave this as is or forecast it
-    'Volatility': stock_data['Daily_Return'].rolling(window=30).std().iloc[-1], # double check the most recent value
-    'Z_Score_ACP': last_row['Z_Score_ACP'],  # Assuming it's already calculated
-    'Z_Score_Volume': last_row['Z_Score_Volume'],  # Similarly, it's already calculated
+    'BB_upper_15': stock_data['Adj Close'].rolling(window=15).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=15).std().iloc[-1]),
+    'BB_upper_10': stock_data['Adj Close'].rolling(window=10).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=10).std().iloc[-1]),
     'RM_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1],
-    'RSTD_30': stock_data['Adj Close'].rolling(window=30).std().iloc[-1],
-    'BB_upper_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=30).std().iloc[-1]),
-    'BB_lower_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=30).std().iloc[-1]),
-    'RM_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1],
-    'RSTD_60': stock_data['Adj Close'].rolling(window=60).std().iloc[-1],
-    'BB_upper_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=60).std().iloc[-1]),
-    'BB_lower_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=60).std().iloc[-1]),
-    'RM_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1],
-    'RSTD_90': stock_data['Adj Close'].rolling(window=90).std().iloc[-1],
-    'BB_upper_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=90).std().iloc[-1]),
-    'BB_lower_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=90).std().iloc[-1]),
-    'RSI_30': calculate_rsi(stock_data['Adj Close'], window=30).iloc[-1],
-    'RSI_60': calculate_rsi(stock_data['Adj Close'], window=60).iloc[-1],
-    'RSI_90': calculate_rsi(stock_data['Adj Close'], window=90).iloc[-1]
+    'BB_upper_5': stock_data['Adj Close'].rolling(window=5).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=5).std().iloc[-1]),
+    'RSTD_5': stock_data['Adj Close'].rolling(window=5).std().iloc[-1],
+    'BB_lower_5': stock_data['Adj Close'].rolling(window=5).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=5).std().iloc[-1]),
+    'Z_Score_ACP': last_row['Z_Score_ACP'], 
+    'RM_5': stock_data['Adj Close'].rolling(window=5).mean().iloc[-1],
+    'RSI_5': calculate_rsi(stock_data['Adj Close'], window=5).iloc[-1]
     }, index=[0])   
 
     # Predict tomorrow's price
-    tomorrow_prediction = lgb_model.predict(X_tomorrow)
+    tomorrow_prediction = rf_model_w_rfe.predict(X_tomorrow)
     return tomorrow_prediction[0]
 
 
