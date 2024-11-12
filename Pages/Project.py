@@ -1056,8 +1056,8 @@ with st.container(border=True):
     print(f"Mean RMSE: {cv_rmse_xgb.mean()}")
     ''')
 
-    st.write('XGBoost Cross-validated RMSE scores: [44.56418014  5.39636316 35.16814353  8.99874153  8.01419586]')
-    st.write('Mean RMSE: 20.428324843656085')
+    st.write('XGBoost Cross-validated RMSE scores: [36.5091186   1.24463497 27.68799046  6.76454803  7.14904474]')
+    st.write('Mean RMSE: 15.871067358360497')
 
 
     st.markdown('''
