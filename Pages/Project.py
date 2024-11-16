@@ -895,7 +895,8 @@ with st.container(border=True):
     st.markdown('''
     They both generalize well, but the model with the selected features using RFE performs slightly better than the model without RFE.
     ''')
-
+    
+# XGBoost
     st.markdown('''
     ### XGBoost
     ''')
@@ -1065,7 +1066,7 @@ with st.container(border=True):
     st.write('XGBoost Cross-validated RMSE scores with RFE: [36.37942185  1.26875895 27.90646695  4.63165039  6.83074724]')
     st.write('Mean RMSE with RFE: 15.403409076335384')
 
-
+# LightGBM
     st.markdown('''
     ### LightGBM
     ''')
@@ -1074,12 +1075,8 @@ with st.container(border=True):
     import lightgbm as lgb
 
     # Initialize LightGBM model
-    lgb_model = lgb.LGBMRegressor(
-    objective="quantile",
-    alpha=0.3,  # Adjust this quantile based on performance (e.g., 0.5 for median)
-    learning_rate=0.01,
-    n_estimators=1000)
-    
+    lgb_model = lgb.LGBMRegressor(n_estimators=2000, learning_rate=0.05, random_state=42)
+
     # Fit the model
     lgb_model.fit(X_train, y_train)
 
@@ -1179,26 +1176,22 @@ with st.container(border=True):
     ''')
     
     st.code('''
-            # Select top features (from RFE or feature importance analysis)
-    selected_features = rfe_lgb_ranking[rfe_lgb_ranking['Ranking'] <= 8]['Feature'].tolist()
+    
+    # Select top features (from RFE or feature importance analysis)
+    selected_features = rfe_lgb_ranking[rfe_lgb_ranking['Ranking'] <= 18]['Feature'].tolist()
 
     # Train the model with selected features
     X_train_selected = X_train[selected_features]
     X_test_selected = X_test[selected_features]
 
     # Initialize LightGBM model
-    lgb_model2 = lgb.LGBMRegressor(
-        objective="quantile",
-        alpha=0.3,  # Adjust this quantile based on performance (e.g., 0.5 for median)
-        learning_rate=0.01,
-        n_estimators=1000
-    )
+    lgb_model = lgb.LGBMRegressor(n_estimators=1000, learning_rate=0.03, random_state=42)
 
     # Fit the model
-    lgb_model2.fit(X_train_selected, y_train)
+    lgb_model.fit(X_train_selected, y_train)
 
     # Predict on the test data
-    lgb_predictions = lgb_model2.predict(X_test_selected)
+    lgb_predictions = lgb_model.predict(X_test_selected)
 
     # Evaluate the model
     lgb_mae = mean_absolute_error(y_test, lgb_predictions)
@@ -1212,7 +1205,7 @@ with st.container(border=True):
         evaluation_df.loc[evaluation_df['Model'] == model_name, ['MAE', 'MSE', 'RMSE', 'R2']] = [lgb_mae, lgb_mse, lgb_rmse, lbg_r2]
     else:
         evaluation_df.loc[len(evaluation_df)] = [model_name, lgb_mae, lgb_mse, lgb_rmse, lbg_r2]
-    evaluation_df)
+    evaluation_df
     ''')
     
     url11b = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/evaluation_df5a.csv"
@@ -1223,17 +1216,28 @@ with st.container(border=True):
     st.dataframe(df11b)
     
     st.code('''
+    from sklearn.model_selection import TimeSeriesSplit, cross_val_score
+
+    # Initialize TimeSeriesSplit
+    tscv = TimeSeriesSplit(n_splits=5)
     # Perform cross-validation
     cv_scores_lgb = cross_val_score(lgb_model, X_train, y_train, cv=tscv, scoring='neg_mean_squared_error')
+    cv_scores_lgb_rfe = cross_val_score(lgb_model, X_train_selected, y_train, cv=tscv, scoring='neg_mean_squared_error')
 
     # Convert negative MSE to positive RMSE
     cv_rmse_lgb = np.sqrt(-cv_scores_lgb)
+    cv_rmse_lgb_rfe = np.sqrt(-cv_scores_lgb_rfe)
+
     print(f"LightGBM Cross-validated RMSE scores: {cv_rmse_lgb}")
     print(f"Mean RMSE: {cv_rmse_lgb.mean()}")
+    print(f"LightGBM Cross-validated RMSE scores with RFE: {cv_rmse_lgb_rfe}")
+    print(f"Mean RMSE with RFE: {cv_rmse_lgb_rfe.mean()}")
     ''')
 
-    st.write('LightGBM Cross-validated RMSE scores: [44.54512687  4.63374326 32.73412673  9.54476619  7.68359448]')
-    st.write('Mean RMSE: 19.828271506889116')
+    st.write('LightGBM Cross-validated RMSE scores: [36.60844141  1.2342131  28.28350553  5.62404162  6.48324805]')
+    st.write('Mean RMSE: 15.646689943115396')
+    st.write('LightGBM Cross-validated RMSE scores with RFE: [37.75452748  1.07850193 30.04420019  5.57475263  5.12586179]')
+    st.write('Mean RMSE with RFE: 15.915568803995626')
 
     st.markdown('''
     ### Hyperparameter tuning
