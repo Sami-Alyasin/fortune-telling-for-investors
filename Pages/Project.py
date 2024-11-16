@@ -817,11 +817,15 @@ with st.container(border=True):
 
     st.markdown('''
     Re-train the Model with Selected Features. Since we identified the top features from RFE & feature importance, we'll retrain our model using only the selected features.
+    Initially, I selected the features with ranking = 1 from the RFE analysis and got slightly better results than the model with all features.
+    
+    But then I was curious about what the results will look like if I include some of the features that didn't make the #1 rank in the RFE analysis, so I decided to expirement with the ranking values to include.
+    I found that including ranking values of 12 and below provided the best results, so that's what I'm showing below. 
     ''')
 
     st.code('''
     # Select top features (from RFE or feature importance analysis)
-    selected_features = rfe_ranking[rfe_ranking['Ranking'] == 1]['Feature'].tolist()
+    selected_features = rfe_ranking[rfe_ranking['Ranking'] <= 12]['Feature'].tolist()
 
     # Train the model with selected features
     X_train_selected = X_train[selected_features]
@@ -881,15 +885,15 @@ with st.container(border=True):
     print(f"Cross-validated RMSE scores with RFE: {cv_rmse_w_rfe}")
     print(f"Mean RMSE with RFE: {cv_rmse_w_rfe.mean()}")
     ''')
-
+      
     st.write('Cross-validated RMSE scores without RFE: [32.63447453  2.22874748 27.71891349  4.43199662  6.10554772]')
     st.write('Mean RMSE: 14.62393596757805')
-    st.write('Cross-validated RMSE scores with RFE: [30.26314701  2.22361474 28.32227043  4.59673514  5.93427474]')
-    st.write('Mean RMSE with RFE: 14.26800841253872')
+    st.write('Cross-validated RMSE scores with RFE: [30.43327864  2.19558681 27.84767938  4.63571141  5.92886739]')
+    st.write('Mean RMSE with RFE: 14.208224725317141')
 
 
     st.markdown('''
-    They both generalize well, and the model with RFE performs slightly better than the model without RFE.
+    They both generalize well, but the model with the selected features using RFE performs slightly better than the model without RFE.
     ''')
 
     st.markdown('''
@@ -998,7 +1002,7 @@ with st.container(border=True):
     
     st.code('''
     # Select top features (from RFE or feature importance analysis)
-    selected_features = rfe_xgb_ranking[rfe_xgb_ranking['Ranking'] == 1]['Feature'].tolist()
+    selected_features = rfe_xgb_ranking[rfe_xgb_ranking['Ranking'] <= 16]['Feature'].tolist()
 
     # Train the model with selected features
     X_train_selected = X_train[selected_features]
@@ -1058,6 +1062,8 @@ with st.container(border=True):
 
     st.write('XGBoost Cross-validated RMSE scores: [36.5091186   1.24463497 27.68799046  6.76454803  7.14904474]')
     st.write('Mean RMSE: 15.871067358360497')
+    st.write('XGBoost Cross-validated RMSE scores with RFE: [36.37942185  1.26875895 27.90646695  4.63165039  6.83074724]')
+    st.write('Mean RMSE with RFE: 15.403409076335384')
 
 
     st.markdown('''
@@ -1098,8 +1104,6 @@ with st.container(border=True):
     df11 = load_data()
     st.dataframe(df11)
     
-    # evaluation_df5 = pd.read_csv('/Users/sami/DSP/App/data/evaluation_df5.csv')
-    # st.dataframe(data=evaluation_df5)
 
     st.code('''
     import matplotlib.pyplot as plt
