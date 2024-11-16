@@ -906,7 +906,7 @@ with st.container(border=True):
     from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 
     # Initialize XGBoost model
-    xgb_model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=100, learning_rate=0.1, random_state=42)
+    xgb_model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=5000, learning_rate=0.05, random_state=42)
 
     # Fit the model
     xgb_model.fit(X_train, y_train)
@@ -1010,13 +1010,13 @@ with st.container(border=True):
     X_test_selected = X_test[selected_features]
 
     # Initialize XGBoost model
-    xgb_model2 = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=100, learning_rate=0.1, random_state=42)
+    xgb_model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=5000, learning_rate=0.05, random_state=42)
 
     # Fit the model
-    xgb_model2.fit(X_train_selected, y_train)
+    xgb_model.fit(X_train_selected, y_train)
 
     # Predict on the test data
-    xgb_predictions = xgb_model2.predict(X_test_selected)
+    xgb_predictions = xgb_model.predict(X_test_selected)
 
     # Evaluate the model
     xgb_mae = mean_absolute_error(y_test, xgb_predictions)
@@ -1054,17 +1054,21 @@ with st.container(border=True):
 
     # Perform cross-validation
     cv_scores_xgb = cross_val_score(xgb_model, X_train, y_train, cv=tscv, scoring='neg_mean_squared_error')
+    cv_scores_xgb_rfe = cross_val_score(xgb_model, X_train_selected, y_train, cv=tscv, scoring='neg_mean_squared_error')
 
     # Convert negative MSE to positive RMSE
     cv_rmse_xgb = np.sqrt(-cv_scores_xgb)
+    cv_rmse_xgb_rfe = np.sqrt(-cv_scores_xgb_rfe)
     print(f"XGBoost Cross-validated RMSE scores: {cv_rmse_xgb}")
     print(f"Mean RMSE: {cv_rmse_xgb.mean()}")
+    print(f"XGBoost Cross-validated RMSE scores with RFE: {cv_rmse_xgb_rfe}")
+    print(f"Mean RMSE with RFE: {cv_rmse_xgb_rfe.mean()}")
     ''')
 
-    st.write('XGBoost Cross-validated RMSE scores: [36.5091186   1.24463497 27.68799046  6.76454803  7.14904474]')
-    st.write('Mean RMSE: 15.871067358360497')
-    st.write('XGBoost Cross-validated RMSE scores with RFE: [36.37942185  1.26875895 27.90646695  4.63165039  6.83074724]')
-    st.write('Mean RMSE with RFE: 15.403409076335384')
+    st.write('XGBoost Cross-validated RMSE scores: [36.88100172  1.19683203 27.40201081  6.62260229  6.97792739]')
+    st.write('Mean RMSE: 15.816074848501225')
+    st.write('XGBoost Cross-validated RMSE scores with RFE: [36.02194746  1.2303548  27.71207236  6.02041578  6.94281035]')
+    st.write('Mean RMSE with RFE: 15.585520147264546')
 
 # LightGBM
     st.markdown('''
@@ -1075,7 +1079,7 @@ with st.container(border=True):
     import lightgbm as lgb
 
     # Initialize LightGBM model
-    lgb_model = lgb.LGBMRegressor(n_estimators=2000, learning_rate=0.05, random_state=42)
+    lgb_model = lgb.LGBMRegressor(n_estimators=10000, learning_rate=0.07, random_state=42)
 
     # Fit the model
     lgb_model.fit(X_train, y_train)
