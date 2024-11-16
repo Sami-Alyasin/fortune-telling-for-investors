@@ -1074,8 +1074,12 @@ with st.container(border=True):
     import lightgbm as lgb
 
     # Initialize LightGBM model
-    lgb_model = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1, random_state=42)
-
+    lgb_model = lgb.LGBMRegressor(
+    objective="quantile",
+    alpha=0.3,  # Adjust this quantile based on performance (e.g., 0.5 for median)
+    learning_rate=0.01,
+    n_estimators=1000)
+    
     # Fit the model
     lgb_model.fit(X_train, y_train)
 
@@ -1146,11 +1150,78 @@ with st.container(border=True):
 
     st.image('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/refs/heads/main/data/featureimportance3.png')
 
+    st.code('''
+    # imploement RFE for LightGBM
+    # Initialize RFE with LightGBM as the estimator
+    rfe_lgb = RFE(estimator=lgb_model, n_features_to_select=10)
+
+    # Fit RFE
+    rfe_lgb.fit(X_train, y_train)
+
+    # Get the ranking of features
+    rfe_lgb_ranking = pd.DataFrame({
+        'Feature': feature_columns,
+        'Ranking': rfe_lgb.ranking_
+    }).sort_values(by='Ranking')
+
+    rfe_lgb_ranking
+            ''')
+    
+    url11a = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/rfe_lgb_ranking.csv"
+    @st.cache_data
+    def load_data():
+        return pd.read_csv(url11a)
+    df11a = load_data()
+    st.dataframe(df11a)
 
     st.markdown('''
     Cross-Validation with LightGBM
     ''')
+    
+    st.code('''
+            # Select top features (from RFE or feature importance analysis)
+    selected_features = rfe_lgb_ranking[rfe_lgb_ranking['Ranking'] <= 8]['Feature'].tolist()
 
+    # Train the model with selected features
+    X_train_selected = X_train[selected_features]
+    X_test_selected = X_test[selected_features]
+
+    # Initialize LightGBM model
+    lgb_model2 = lgb.LGBMRegressor(
+        objective="quantile",
+        alpha=0.3,  # Adjust this quantile based on performance (e.g., 0.5 for median)
+        learning_rate=0.01,
+        n_estimators=1000
+    )
+
+    # Fit the model
+    lgb_model2.fit(X_train_selected, y_train)
+
+    # Predict on the test data
+    lgb_predictions = lgb_model2.predict(X_test_selected)
+
+    # Evaluate the model
+    lgb_mae = mean_absolute_error(y_test, lgb_predictions)
+    lgb_rmse = root_mean_squared_error(y_test, lgb_predictions)
+    lgb_mse = np.square(lgb_rmse)
+    lbg_r2 = r2_score(y_test, lgb_predictions)
+
+    # append LightGBM results
+    model_name = 'LightGBM w/RFE'
+    if model_name in evaluation_df['Model'].values:
+        evaluation_df.loc[evaluation_df['Model'] == model_name, ['MAE', 'MSE', 'RMSE', 'R2']] = [lgb_mae, lgb_mse, lgb_rmse, lbg_r2]
+    else:
+        evaluation_df.loc[len(evaluation_df)] = [model_name, lgb_mae, lgb_mse, lgb_rmse, lbg_r2]
+    evaluation_df)
+    ''')
+    
+    url11b = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/evaluation_df5a.csv"
+    @st.cache_data
+    def load_data():
+        return pd.read_csv(url11b)
+    df11b = load_data()
+    st.dataframe(df11b)
+    
     st.code('''
     # Perform cross-validation
     cv_scores_lgb = cross_val_score(lgb_model, X_train, y_train, cv=tscv, scoring='neg_mean_squared_error')
