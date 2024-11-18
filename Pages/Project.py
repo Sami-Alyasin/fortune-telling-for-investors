@@ -1238,10 +1238,10 @@ with st.container(border=True):
     print(f"Mean RMSE with RFE: {cv_rmse_lgb_rfe.mean()}")
     ''')
 
-    st.write('LightGBM Cross-validated RMSE scores: [36.60844141  1.2342131  28.28350553  5.62404162  6.48324805]')
-    st.write('Mean RMSE: 15.646689943115396')
-    st.write('LightGBM Cross-validated RMSE scores with RFE: [37.75452748  1.07850193 30.04420019  5.57475263  5.12586179]')
-    st.write('Mean RMSE with RFE: 15.915568803995626')
+    st.write('LightGBM Cross-validated RMSE scores: [36.62848482  1.23462243 28.28789242  5.62108442  6.46664291]')
+    st.write('Mean RMSE: 15.647745400966153')
+    st.write('LightGBM Cross-validated RMSE scores with RFE: [37.37076108  1.17306957 29.47037208  5.78543882  6.22448879]')
+    st.write('Mean RMSE with RFE: 16.004826066872678')
 
     st.markdown('''
     ### Hyperparameter tuning
@@ -1251,8 +1251,8 @@ with st.container(border=True):
     from sklearn.model_selection import RandomizedSearchCV
     # set up the parameter grid for XGBoost
     xgb_param_grid = {
-        'n_estimators': [100, 200, 300, 400, 500],
-        'learning_rate': [0.01, 0.05, 0.1, 0.2],
+        'n_estimators': [1000, 2000, 3000, 5000, 10000],
+        'learning_rate': [0.01, 0.03, 0.05, 0.1],
         'max_depth': [3, 5, 7, 9],
         'subsample': [0.6, 0.8, 1.0],
         'colsample_bytree': [0.6, 0.8, 1.0],
@@ -1260,8 +1260,8 @@ with st.container(border=True):
     }
     # set up the parameter grid for LightGBM
     lgb_param_grid = {
-        'n_estimators': [100, 200, 300, 400, 500],
-        'learning_rate': [0.01, 0.05, 0.1, 0.2],
+        'n_estimators': [1000, 2000, 3000, 5000, 10000],
+        'learning_rate': [0.01, 0.03, 0.05, 0.1],
         'num_leaves': [20, 31, 50, 70],
         'min_child_samples': [10, 20, 30],
         'subsample': [0.6, 0.8, 1.0],
@@ -1295,8 +1295,8 @@ with st.container(border=True):
     print("Best RMSE Score for XGBoost:", np.sqrt(-xgb_random_search.best_score_))
     ''')
 
-    st.write('''Best Parameters for XGBoost: {'subsample': 0.8, 'n_estimators': 200, 'max_depth': 3, 'learning_rate': 0.1, 'gamma': 0.2, 'colsample_bytree': 0.8}''')
-    st.write('Best RMSE Score for XGBoost: 22.48940465755753')
+    st.write('''Best Parameters for XGBoost: {'subsample': 0.6, 'n_estimators': 1000, 'max_depth': 3, 'learning_rate': 0.05, 'gamma': 0.5, 'colsample_bytree': 0.8}''')
+    st.write('Best RMSE Score for XGBoost: 17.731997224267428')
 
 
     st.code('''
@@ -1318,8 +1318,8 @@ with st.container(border=True):
     print("Best RMSE Score for LightGBM:", np.sqrt(-lgb_random_search.best_score_))
     ''')
 
-    st.write('''Best Parameters for LightGBM: {'subsample': 1.0, 'reg_lambda': 0, 'reg_alpha': 0, 'num_leaves': 20, 'n_estimators': 200, 'min_child_samples': 20, 'learning_rate': 0.1, 'colsample_bytree': 0.6}''')
-    st.write('''Best RMSE Score for LightGBM: 21.276306743562923''')
+    st.write('''Best Parameters for LightGBM: {'subsample': 0.8, 'reg_lambda': 0, 'reg_alpha': 0.2, 'num_leaves': 20, 'n_estimators': 10000, 'min_child_samples': 10, 'learning_rate': 0.1, 'colsample_bytree': 0.6}''')
+    st.write('''Best RMSE Score for LightGBM: 18.563887428014702''')
 
     st.markdown('''
     Evaluate the best model after tunining the hyperparameters
