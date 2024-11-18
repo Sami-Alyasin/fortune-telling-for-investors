@@ -41,11 +41,9 @@ with st.container(border=True):
     st.markdown('''
         **This project is continuously evolving, and the following is what's currently in progress:**
 
-        * Exploring the use of different time ranges for the historical stock price data.
-        * Exploring the use of shorter time ranges for the feature engineering process. Using 5, 10, & 15 days instead of 30,60, 90 days.
+        * Demonstrating the impact of parameter selection on the model's performance. I'm thinking of adding tabs for each model with the different itterations. 
+        * Looking into making it easier to navigate the Project walkthrough page, possibly adding more links for the different sections under the modeling section.
         * Adding details about the model deployment process.
-        * Implementing sentiment analysis from news and social media for each stock and study the correlation to the stock price movement.
-        * Implementing PCA (Principle Component Analysis) to reduce the dimensionality of the feature space.
         
         ''')
 
@@ -53,19 +51,21 @@ with st.container(border=True):
     st.header("Skills & Tools Utilized",divider=True)
     st.markdown('''
         * Github 
-        * Machine Learning Frameworks
         * Python
-        * Data Visualization
         * Streamlit
+        * Machine Learning Frameworks
+        * Modeling
+            * Model Selection 
+            * Model Evaluation 
+            * Hyperparameter Tuning
+            * Model Deployment
+        * Feature Engineering
+        * Data Visualization
         * Exploratory Data Analysis
             * Outlier Detection
             * Time Series Analysis
             * Normality Testing
         * Generative AI
-        * Model Selection, Evaluation, & Deployment
-        * Feature Engineering
-        * PCA (Principle Component Analysis)
-        * Sentiment Analysis
                 ''')
     
     # Skills dictionary with icons and descriptions

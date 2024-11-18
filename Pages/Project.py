@@ -1243,179 +1243,7 @@ with st.container(border=True):
     st.write('LightGBM Cross-validated RMSE scores with RFE: [37.37076108  1.17306957 29.47037208  5.78543882  6.22448879]')
     st.write('Mean RMSE with RFE: 16.004826066872678')
 
-    st.markdown('''
-    ### Hyperparameter tuning
-    ''')
-
-    st.code('''
-    from sklearn.model_selection import RandomizedSearchCV
-    # set up the parameter grid for XGBoost
-    xgb_param_grid = {
-        'n_estimators': [1000, 2000, 3000, 5000, 10000],
-        'learning_rate': [0.01, 0.03, 0.05, 0.1],
-        'max_depth': [3, 5, 7, 9],
-        'subsample': [0.6, 0.8, 1.0],
-        'colsample_bytree': [0.6, 0.8, 1.0],
-        'gamma': [0, 0.1, 0.2, 0.5]
-    }
-    # set up the parameter grid for LightGBM
-    lgb_param_grid = {
-        'n_estimators': [1000, 2000, 3000, 5000, 10000],
-        'learning_rate': [0.01, 0.03, 0.05, 0.1],
-        'num_leaves': [20, 31, 50, 70],
-        'min_child_samples': [10, 20, 30],
-        'subsample': [0.6, 0.8, 1.0],
-        'colsample_bytree': [0.6, 0.8, 1.0],
-        'reg_alpha': [0, 0.1, 0.2],
-        'reg_lambda': [0, 0.1, 0.2]
-    }
-    ''')
-
-    st.markdown('''
-    Set Up RandomizedSearchCV:
-    RandomizedSearchCV will randomly sample from the parameter grid a specified number of times, which speeds up the search process.
-    ''')
-
-    st.code('''
-    xgb_random_search = RandomizedSearchCV(
-        estimator=xgb.XGBRegressor(objective='reg:squarederror', random_state=42),
-        param_distributions=xgb_param_grid,
-        n_iter=50,
-        scoring='neg_mean_squared_error',
-        cv=TimeSeriesSplit(n_splits=5),
-        verbose=1,
-        random_state=42,
-        n_jobs=-1  # Use all available cores
-    )
-
-    xgb_random_search.fit(X_train, y_train)
-
-    # Best parameters and score
-    print("Best Parameters for XGBoost:", xgb_random_search.best_params_)
-    print("Best RMSE Score for XGBoost:", np.sqrt(-xgb_random_search.best_score_))
-    ''')
-
-    st.write('''Best Parameters for XGBoost: {'subsample': 0.6, 'n_estimators': 1000, 'max_depth': 3, 'learning_rate': 0.05, 'gamma': 0.5, 'colsample_bytree': 0.8}''')
-    st.write('Best RMSE Score for XGBoost: 17.731997224267428')
-
-
-    st.code('''
-    lgb_random_search = RandomizedSearchCV(
-        estimator=lgb.LGBMRegressor(random_state=42),
-        param_distributions=lgb_param_grid,
-        n_iter=50, 
-        scoring='neg_mean_squared_error',
-        cv=TimeSeriesSplit(n_splits=5),
-        verbose=1,
-        random_state=42,
-        n_jobs=-1
-    )
-
-    lgb_random_search.fit(X_train, y_train)
-
-    # Best parameters and score
-    print("Best Parameters for LightGBM:", lgb_random_search.best_params_)
-    print("Best RMSE Score for LightGBM:", np.sqrt(-lgb_random_search.best_score_))
-    ''')
-
-    st.write('''Best Parameters for LightGBM: {'subsample': 0.8, 'reg_lambda': 0, 'reg_alpha': 0.2, 'num_leaves': 20, 'n_estimators': 10000, 'min_child_samples': 10, 'learning_rate': 0.1, 'colsample_bytree': 0.6}''')
-    st.write('''Best RMSE Score for LightGBM: 18.563887428014702''')
-
-    st.markdown('''
-    Evaluate the best model after tunining the hyperparameters
-    ''')
-
-    st.code('''
-    best_xgb_model = xgb_random_search.best_estimator_
-    xgb_predictions = best_xgb_model.predict(X_test)
-
-    xgb_mae = mean_absolute_error(y_test, xgb_predictions)
-    xgb_rmse = root_mean_squared_error(y_test, xgb_predictions)
-    xgb_mse = np.square(xgb_rmse)
-    xgb_r2 = r2_score(y_test, xgb_predictions)
-
-    # Append Tuned XGBoost results
-    model_name = 'Tuned XGBoost'
-    if model_name in evaluation_df['Model'].values:
-        evaluation_df.loc[evaluation_df['Model'] == model_name, ['MAE', 'MSE', 'RMSE', 'R2']] = [xgb_mae, xgb_mse, xgb_rmse, xgb_r2]
-    else:
-        evaluation_df.loc[len(evaluation_df)] = [model_name, xgb_mae, xgb_mse, xgb_rmse, xgb_r2]
-    evaluation_df
-
-    ''')
-
-    url12 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/evaluation_df6.csv"
-    @st.cache_data
-    def load_data():
-        return pd.read_csv(url12)
-    df12 = load_data()
-    st.dataframe(df12)
-
-    st.code('''
-    # Get feature importances
-    tunedxgb_feature_importance = best_xgb_model.feature_importances_
-    feature_importance_df = pd.DataFrame({
-        'Feature': feature_columns,
-        'Importance': tunedxgb_feature_importance
-    }).sort_values(by='Importance', ascending=False)
-
-    # Plot all the feature importances
-    plt.figure(figsize=(20, 6))
-    sns.barplot(x='Importance', y='Feature', hue='Feature', data=feature_importance_df, palette='viridis', dodge=False, legend=False)
-    plt.title('Feature Importance from Tuned XGBoost', fontweight='bold')
-    plt.xlabel('Importance')
-    plt.ylabel('Feature')
-    plt.gca().set_facecolor('#f0f0f0')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    ''')
-
-    st.image('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/refs/heads/main/data/featureimportance4.png')
-
-    st.code('''
-    best_lgb_model = lgb_random_search.best_estimator_
-    lgb_predictions = best_lgb_model.predict(X_test)
-
-    lgb_mae = mean_absolute_error(y_test, lgb_predictions)
-    lgb_rmse = root_mean_squared_error(y_test, lgb_predictions)
-    lgb_mse = np.square(lgb_rmse)
-    lgb_r2 = r2_score(y_test, lgb_predictions)
-
-    # Append Tuned LightGBM results
-    model_name = 'Tuned LightGBM'
-    if model_name in evaluation_df['Model'].values:
-        evaluation_df.loc[evaluation_df['Model'] == model_name, ['MAE', 'MSE', 'RMSE', 'R2']] = [lgb_mae, lgb_mse, lgb_rmse, lgb_r2]
-    else:
-        evaluation_df.loc[len(evaluation_df)] = [model_name, lgb_mae, lgb_mse, lgb_rmse, lgb_r2]
-    evaluation_df
-    ''')
-
-    url13 = "https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/main/data/evaluation_df7.csv"
-    @st.cache_data
-    def load_data():
-        return pd.read_csv(url13)
-    df13 = load_data()
-    st.dataframe(df13)
-
-    st.code('''
-    # Get feature importances
-    tunedlbg_feature_importance = best_lgb_model.feature_importances_
-    feature_importance_df = pd.DataFrame({
-        'Feature': feature_columns,
-        'Importance': tunedlbg_feature_importance
-    }).sort_values(by='Importance', ascending=False)
-
-    # Plot all the feature importances
-    plt.figure(figsize=(20, 6))
-    sns.barplot(x='Importance', y='Feature', hue='Feature', data=feature_importance_df, palette='viridis', dodge=False, legend=False)
-    plt.title('Feature Importance from Tuned LightGBM', fontweight='bold')
-    plt.xlabel('Importance')
-    plt.ylabel('Feature')
-    plt.gca().set_facecolor('#f0f0f0')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    ''')
-
-    st.image('https://raw.githubusercontent.com/Sami-Alyasin/Crystal-Stockball/refs/heads/main/data/featureimportance5.png')
-
+# GRU
     st.markdown('''
     ### GRU (Gated Recurrent Unit)
     ''')
@@ -1595,6 +1423,8 @@ with st.container(border=True):
             
     ''')
     
+    st.warning('''This code below is being updated currently to reflect the final version of the model''')
+    
     st.markdown('''
     ### The code below is what we will be deploying for the live model in the app
     It combines all the steps we need to predict the stock price movement using the LightBGM model
@@ -1603,148 +1433,148 @@ with st.container(border=True):
     
     st.code('''
     import joblib
-import streamlit as st
-import pandas as pd
-import numpy as np
-import yfinance as yf
-import matplotlib.pyplot as plt
-import seaborn as sns
-import math
-import sklearn as sk
-import lightgbm as lgb
-from scipy import stats
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    import yfinance as yf
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import math
+    import sklearn as sk
+    import lightgbm as lgb
+    from scipy import stats
 
-st.set_page_config(layout="centered",initial_sidebar_state="expanded")
+    st.set_page_config(layout="centered",initial_sidebar_state="expanded")
 
-# Load the saved LightGBM model
-lgb_model = joblib.load('lgb_model.pkl')
+    # Load the saved LightGBM model
+    lgb_model = joblib.load('lgb_model.pkl')
 
-# Load sector data
-sector_data = pd.read_csv('sector_data.csv')
+    # Load sector data
+    sector_data = pd.read_csv('sector_data.csv')
 
-# Streamlit layout
-st.markdown("<h1 style='text-align: center;'>The Crystal Stockball: Fortune Telling for Investors</h1>", unsafe_allow_html=True)
+    # Streamlit layout
+    st.markdown("<h1 style='text-align: center;'>The Crystal Stockball: Fortune Telling for Investors</h1>", unsafe_allow_html=True)
 
-st.divider()
-left, middle, right = st.columns(3,gap='large')  
-with left:
-    st.page_link("Pages/Home.py",label = "About", icon = "📝")
-    
-with middle:
-    st.page_link("Pages/Project.py",label = "Project walkthorugh", icon = "📚")  
-    
-with right:
-    st.page_link("Pages/LiveModel.py",label = "Give the model a try!", icon = "🔮")
-    
-    
-# download the data for the 30 companies
-data = yf.download("AAPL MSFT GOOGL META AMZN JPM BAC WFC GS MS JNJ PFE MRK ABT BMY PG KO PEP NKE UL XOM CVX SLB COP BP BA CAT MMM GE HON", 
-                   period="5y",
-                   group_by='ticker')
+    st.divider()
+    left, middle, right = st.columns(3,gap='large')  
+    with left:
+        st.page_link("Pages/Home.py",label = "About", icon = "📝")
+        
+    with middle:
+        st.page_link("Pages/Project.py",label = "Project walkthorugh", icon = "📚")  
+        
+    with right:
+        st.page_link("Pages/LiveModel.py",label = "Give the model a try!", icon = "🔮")
+        
+        
+    # download the data for the 30 companies
+    data = yf.download("AAPL MSFT GOOGL META AMZN JPM BAC WFC GS MS JNJ PFE MRK ABT BMY PG KO PEP NKE UL XOM CVX SLB COP BP BA CAT MMM GE HON", 
+                    period="5y",
+                    group_by='ticker')
 
-df_temp = data.stack(level=0).reset_index()
+    df_temp = data.stack(level=0).reset_index()
 
-df = pd.merge(df_temp, sector_data, how='left', on='Ticker')
+    df = pd.merge(df_temp, sector_data, how='left', on='Ticker')
 
-df = df.sort_values(by=['Ticker', 'Date'])
+    df = df.sort_values(by=['Ticker', 'Date'])
 
-# List of stocks for the user to select from
-tickers = df['Ticker'].unique()
+    # List of stocks for the user to select from
+    tickers = df['Ticker'].unique()
 
-# User selects a stock ticker
-selected_ticker = st.selectbox("Select a stock ticker:", tickers)
+    # User selects a stock ticker
+    selected_ticker = st.selectbox("Select a stock ticker:", tickers)
 
-# Use the Pandas pct_change() function to calculate the change of the Adjusted closing price between each day 
-df['Daily_Return'] = df['Adj Close'].pct_change()
+    # Use the Pandas pct_change() function to calculate the change of the Adjusted closing price between each day 
+    df['Daily_Return'] = df['Adj Close'].pct_change()
 
-# Calculate volatility (standard deviation of daily returns)
-df['Volatility'] = df['Daily_Return'].rolling(window=30).std()
+    # Calculate volatility (standard deviation of daily returns)
+    df['Volatility'] = df['Daily_Return'].rolling(window=30).std()
 
-# Z-scores - for outlier detection
-df['Z_Score_ACP'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: stats.zscore(x))
-df['Z_Score_Volume'] = df.groupby('Ticker')['Volume'].transform(lambda x: stats.zscore(x))
+    # Z-scores - for outlier detection
+    df['Z_Score_ACP'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: stats.zscore(x))
+    df['Z_Score_Volume'] = df.groupby('Ticker')['Volume'].transform(lambda x: stats.zscore(x))
 
-# Define a function to calculate Bollinger Bands for a given window to help guage the volatility of a stock
-def calculate_bollinger_bands(df, window):
-    df[f'BB_upper_{window}'] = df[f'RM_{window}'] + (df['Adj Close'].rolling(window=window).std() * 2)
-    df[f'BB_lower_{window}'] = df[f'RM_{window}'] - (df['Adj Close'].rolling(window=window).std() * 2)
-    return df
+    # Define a function to calculate Bollinger Bands for a given window to help guage the volatility of a stock
+    def calculate_bollinger_bands(df, window):
+        df[f'BB_upper_{window}'] = df[f'RM_{window}'] + (df['Adj Close'].rolling(window=window).std() * 2)
+        df[f'BB_lower_{window}'] = df[f'RM_{window}'] - (df['Adj Close'].rolling(window=window).std() * 2)
+        return df
 
-for window in [30, 60, 90]:
-    # Rolling Mean 
-    df[f'RM_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: x.rolling(window=window).mean())
-    # Rolling Standard Deviation
-    df[f'RSTD_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: x.rolling(window=window).std())
-    # Bollinger Bands 
-    df = df.groupby('Ticker', group_keys=False).apply(lambda x: calculate_bollinger_bands(x, window)).reset_index(drop=True)
+    for window in [30, 60, 90]:
+        # Rolling Mean 
+        df[f'RM_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: x.rolling(window=window).mean())
+        # Rolling Standard Deviation
+        df[f'RSTD_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: x.rolling(window=window).std())
+        # Bollinger Bands 
+        df = df.groupby('Ticker', group_keys=False).apply(lambda x: calculate_bollinger_bands(x, window)).reset_index(drop=True)
 
-# RSI (Relative Strength Index) - momentum indicator that measures the speed and change of price movements
-def calculate_rsi(df, window):
-    # Calculate the difference in price from the previous step
-    delta = df.diff(1)
-    
-    # Make two series: one for gains and one for losses
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
-    
-    # Calculate the rolling average of gains and losses
-    avg_gain = gain.rolling(window=window, min_periods=1).mean()
-    avg_loss = loss.rolling(window=window, min_periods=1).mean()
-    
-    # Calculate the Relative Strength (RS)
-    rs = avg_gain / avg_loss
-    
-    # Calculate the RSI
-    rsi = 100 - (100 / (1 + rs))
-    return rsi
+    # RSI (Relative Strength Index) - momentum indicator that measures the speed and change of price movements
+    def calculate_rsi(df, window):
+        # Calculate the difference in price from the previous step
+        delta = df.diff(1)
+        
+        # Make two series: one for gains and one for losses
+        gain = delta.clip(lower=0)
+        loss = -delta.clip(upper=0)
+        
+        # Calculate the rolling average of gains and losses
+        avg_gain = gain.rolling(window=window, min_periods=1).mean()
+        avg_loss = loss.rolling(window=window, min_periods=1).mean()
+        
+        # Calculate the Relative Strength (RS)
+        rs = avg_gain / avg_loss
+        
+        # Calculate the RSI
+        rsi = 100 - (100 / (1 + rs))
+        return rsi
 
-# Calculate RSI for different window sizes and add them to the dataframe
-for window in [30, 60, 90]:
-    df[f'RSI_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: calculate_rsi(x, window))
-    
-df.dropna(inplace=True)
+    # Calculate RSI for different window sizes and add them to the dataframe
+    for window in [30, 60, 90]:
+        df[f'RSI_{window}'] = df.groupby('Ticker')['Adj Close'].transform(lambda x: calculate_rsi(x, window))
+        
+    df.dropna(inplace=True)
 
-# df.to_csv('stock_data.csv', index=False)
+    # df.to_csv('stock_data.csv', index=False)
 
-def predict_tomorrow_stock_price(ticker):
-    
-    # Filter for the desired stock
-    stock_data = df[df['Ticker'] == ticker]
-    
-    # Get the latest feature values
-    last_row = stock_data.iloc[-1]
-    
-    # Prepare the next day's features
-    X_tomorrow = pd.DataFrame({
-    'Daily_Return': last_row['Daily_Return'],  
-    'Volatility': stock_data['Daily_Return'].rolling(window=30).std().iloc[-1],
-    'Z_Score_ACP': last_row['Z_Score_ACP'],
-    'Z_Score_Volume': last_row['Z_Score_Volume'],
-    'RM_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1],
-    'RSTD_30': stock_data['Adj Close'].rolling(window=30).std().iloc[-1],
-    'BB_upper_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=30).std().iloc[-1]),
-    'BB_lower_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=30).std().iloc[-1]),
-    'RM_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1],
-    'RSTD_60': stock_data['Adj Close'].rolling(window=60).std().iloc[-1],
-    'BB_upper_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=60).std().iloc[-1]),
-    'BB_lower_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=60).std().iloc[-1]),
-    'RM_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1],
-    'RSTD_90': stock_data['Adj Close'].rolling(window=90).std().iloc[-1],
-    'BB_upper_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=90).std().iloc[-1]),
-    'BB_lower_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=90).std().iloc[-1]),
-    'RSI_30': calculate_rsi(stock_data['Adj Close'], window=30).iloc[-1],
-    'RSI_60': calculate_rsi(stock_data['Adj Close'], window=60).iloc[-1],
-    'RSI_90': calculate_rsi(stock_data['Adj Close'], window=90).iloc[-1]
-    }, index=[0])   
+    def predict_tomorrow_stock_price(ticker):
+        
+        # Filter for the desired stock
+        stock_data = df[df['Ticker'] == ticker]
+        
+        # Get the latest feature values
+        last_row = stock_data.iloc[-1]
+        
+        # Prepare the next day's features
+        X_tomorrow = pd.DataFrame({
+        'Daily_Return': last_row['Daily_Return'],  
+        'Volatility': stock_data['Daily_Return'].rolling(window=30).std().iloc[-1],
+        'Z_Score_ACP': last_row['Z_Score_ACP'],
+        'Z_Score_Volume': last_row['Z_Score_Volume'],
+        'RM_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1],
+        'RSTD_30': stock_data['Adj Close'].rolling(window=30).std().iloc[-1],
+        'BB_upper_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=30).std().iloc[-1]),
+        'BB_lower_30': stock_data['Adj Close'].rolling(window=30).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=30).std().iloc[-1]),
+        'RM_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1],
+        'RSTD_60': stock_data['Adj Close'].rolling(window=60).std().iloc[-1],
+        'BB_upper_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=60).std().iloc[-1]),
+        'BB_lower_60': stock_data['Adj Close'].rolling(window=60).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=60).std().iloc[-1]),
+        'RM_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1],
+        'RSTD_90': stock_data['Adj Close'].rolling(window=90).std().iloc[-1],
+        'BB_upper_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1] + (2 * stock_data['Adj Close'].rolling(window=90).std().iloc[-1]),
+        'BB_lower_90': stock_data['Adj Close'].rolling(window=90).mean().iloc[-1] - (2 * stock_data['Adj Close'].rolling(window=90).std().iloc[-1]),
+        'RSI_30': calculate_rsi(stock_data['Adj Close'], window=30).iloc[-1],
+        'RSI_60': calculate_rsi(stock_data['Adj Close'], window=60).iloc[-1],
+        'RSI_90': calculate_rsi(stock_data['Adj Close'], window=90).iloc[-1]
+        }, index=[0])   
 
-    # Predict tomorrow's price
-    tomorrow_prediction = lgb_model.predict(X_tomorrow)
-    return tomorrow_prediction[0]
+        # Predict tomorrow's price
+        tomorrow_prediction = lgb_model.predict(X_tomorrow)
+        return tomorrow_prediction[0]
 
 
-if st.button('Predict Tomorrow\'s Price'):
-    tomorrow_price = predict_tomorrow_stock_price(selected_ticker)
-    st.markdown(f"<h2 style='text-align: center;'>🎯 Predicted adjusted close price for {selected_ticker} is: ${tomorrow_price:.2f}</h2>", unsafe_allow_html=True)
-    # print the last known adjusted closing price before the prediction
-    st.write(f"Last known adjusted closing price for {selected_ticker} was ${df[df['Ticker'] == selected_ticker]['Adj Close'].iloc[-1]:.2f}")         
+    if st.button('Predict Tomorrow\'s Price'):
+        tomorrow_price = predict_tomorrow_stock_price(selected_ticker)
+        st.markdown(f"<h2 style='text-align: center;'>🎯 Predicted adjusted close price for {selected_ticker} is: ${tomorrow_price:.2f}</h2>", unsafe_allow_html=True)
+        # print the last known adjusted closing price before the prediction
+        st.write(f"Last known adjusted closing price for {selected_ticker} was ${df[df['Ticker'] == selected_ticker]['Adj Close'].iloc[-1]:.2f}")         
 ''')
