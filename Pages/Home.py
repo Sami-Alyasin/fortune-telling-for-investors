@@ -43,7 +43,7 @@ with st.container(border=True):
     st.markdown('''
         **This project is continuously evolving, and the following is what's currently in progress:**
 
-        * Focus on one model: LightGBM
+        * LightGBM model
             * Initially, I started with a bigger scope, which was to train and eveluate multiple models (ARIMA, XGBoost, LightGBM, Random Forest Regressor, and GRU). 
         However, I decided to direct all of my focus on one model for now (LightGBM) to make the project more manageable since I'm learning a lot as I'm working 
         on this project and I'm continiously making changes to improve it.
