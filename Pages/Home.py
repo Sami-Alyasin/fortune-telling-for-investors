@@ -26,14 +26,16 @@ with st.container(border=True):
     st.header("About this project", divider=True)
 
     st.markdown('''
-        **This is an end-to-end data science project that will deploy a live stock price prediction model and explore how the amount of data used for training, engineered features used, models selected, and the selection of the parameters of those models contribute to the performance and efficiency of the model. The model will generate the next trading day's prediction for the selected stock's adjusted closing price.**
+        **This is an end-to-end project that will deploy a live stock price prediction model and explore how the amount of data used for training, 
+        engineered features used, model selected, and the selection of the parameters of that model contribute to its performance and efficiency. 
+        The model will be trained to generate a prediction for the selected stock's adjusted closing price.**
 
         **This project will cover the following steps:**
         1. **Data collection** - We will collect historical stock price data from Yahoo Finance using the yfinance API.
         2. **Exploratory data analysis (EDA)** - We will explore the historical stock price data to understand the patterns and trends.
         3. **Feature engineering** - We will create new features from the historical stock price data to help predict the stock price movement.
-        4. **Modeling** - We will train, optimize, and evaluate a variety of machine learning models.
-        5. **Model deployment** - Finally, we will deploy the best performing model as a web application using Streamlit.            
+        4. **Modeling** - We will train, optimize, and evaluate a machine learning model.
+        5. **Model deployment** - Finally, we will deploy the model as a web application using Streamlit.            
         ''')
     
     st.header("In the works:", divider=True)
@@ -41,10 +43,16 @@ with st.container(border=True):
     st.markdown('''
         **This project is continuously evolving, and the following is what's currently in progress:**
 
-        * Demonstrating the impact of parameter selection on the model's performance. I'm thinking of adding tabs for each model with the different itterations. 
-        * Looking into making it easier to navigate the Project walkthrough page, possibly adding more links for the different sections under the modeling section.
-        * Adding details about the model deployment process.
+        * Focus on one model: LightGBM
+            * Initially, I started with a bigger scope, which was to train and eveluate multiple models (ARIMA, XGBoost, LightGBM, Random Forest Regressor, and GRU). 
+        However, I decided to direct all of my focus on one model for now (LightGBM) to make the project more manageable since I'm learning a lot as I'm working 
+        on this project and I'm continiously making changes to improve it.
         
+        * Prediction window 
+            * Currently the model predicts the stock price for the next trading day, but I'm working on expanding the prediction window, starting with 5 days.
+        
+        * Model deployment
+            * Adding details about how the model was deployed using Streamlit.
         ''')
 
 with st.container(border=True):     
