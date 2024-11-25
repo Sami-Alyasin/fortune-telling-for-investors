@@ -41,6 +41,8 @@ with st.container(border=True):
     st.markdown('''
         **This project is continuously evolving, and the following is what's currently in progress:**
 
+        * Correcting how I've been training the models. I've been training them to use the most recent trading day's features to predict the adjusted closing price, which does not align with the purpose of the model. 
+        Instead, I need to shift the adjusted closing price by as many trading days as I want the model to predict in the future. I'll start with one day and go from there. 
         * Demonstrating the impact of parameter selection on the model's performance. I'm thinking of adding tabs for each model with the different itterations. 
         * Looking into making it easier to navigate the Project walkthrough page, possibly adding more links for the different sections under the modeling section.
         * Adding details about the model deployment process.
