@@ -1,5 +1,2 @@
-# Ignore any nested .git directories
-/App-SPP/**/.git
-
 # ignore the test folder and its contents
-App-SPP/test/*
+test/
